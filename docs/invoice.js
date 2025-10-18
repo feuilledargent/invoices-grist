@@ -148,12 +148,12 @@ function updateInvoice(row) {
     if (row.References) {
       try {
         Object.assign(row, row.References);
-      } catch (err) {
-        throw new Error('Could not understand References column. ' + err);
-      }
-    }
-    
-if (row.Client && row.Client.Banque) {
+        
+// Enrichir les données bancaires du client si disponibles
+if (row.References && row.References.Client && row.References.Client.Banque) {
+  row.Client = Object.assign({}, row.Client, row.References.Client);
+  row.Client.Banque = row.References.Client.Banque;
+
   const rib = row.Client.Banque;
   row.RIB = `Coordonnées bancaires pour le règlement :
 ${rib.Nom_Banque}
@@ -165,6 +165,13 @@ BIC : ${rib.Code_BIC}`;
   row.RIB = "Coordonnées bancaires non renseignées.";
 }
 
+      } catch (err) {
+        throw new Error('Could not understand References column. ' + err);
+      }
+
+      
+    }
+    
 
     // Add some guidance about columns.
     const want = new Set(Object.keys(addDemo({})));
