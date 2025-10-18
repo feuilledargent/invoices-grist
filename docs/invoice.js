@@ -197,43 +197,6 @@ function updateInvoice(row) {
       row.Invoicer.Url = tweakUrl(row.Invoicer.Website);
     }
 
-    // --- Ajouter les informations bancaires du client ---
-if (row.Client && row.Client['Nom banque']) {
-  const banqueRef = row.Client['Nom banque'];
-
-  try {
-    // Si la référence "Nom banque" contient déjà les données (lookup Grist)
-    if (typeof banqueRef === 'object') {
-      row.Client.Banque = {
-        Nom: banqueRef['Nom banque'] || '',
-        Rue: banqueRef['Rue'] || '',
-        CP: banqueRef['CP'] || '',
-        Ville: banqueRef['Ville'] || '',
-        IBAN: banqueRef['IBAN'] || '',
-        BIC: banqueRef['Code BIC'] || '',
-      };
-    } else {
-      // Si c'est seulement un identifiant, on peut aller chercher les données via l’API Grist
-      grist.docApi.fetchTable('banque').then(table => {
-        const banque = table.records.find(b => b.id === banqueRef);
-        if (banque) {
-          row.Client.Banque = {
-            Nom: banque['Nom banque'] || '',
-            Rue: banque['Rue'] || '',
-            CP: banque['CP'] || '',
-            Ville: banque['Ville'] || '',
-            IBAN: banque['IBAN'] || '',
-            BIC: banque['Code BIC'] || '',
-          };
-        }
-      }).catch(console.error);
-    }
-  } catch (e) {
-    console.error('Erreur lors du chargement des infos bancaires :', e);
-  }
-}
-
-
     // Fiddle around with updating Vue (I'm not an expert).
     for (const key of want) {
       Vue.delete(data.invoice, key);
