@@ -67,25 +67,25 @@
         </div>
       </div>
 
-      <!-- Bloc de droite : client -->
-<div class="client" v-for="business in (invoice.Client ? [invoice.Client] : [])">
-  <div class="title">Client</div>
-  <div class="details">
-    <template v-if="typeof(business) === 'string'">
-      <div class="newlined">{{ business }}</div>
-    </template>
-    <template v-else>
-      <div>{{ business.Name }}</div>
-      <template v-if="business.Street1">{{ business.Street1 }}</template>
-      <template v-if="business.Street2"> {{ business.Street2 }}</template>
-      <br />
-      <template v-if="business.Zip">{{ business.Zip }}</template>
-      <template v-if="business.City"> {{ business.City }}</template>
-      <template v-if="business.State"> {{ business.State }}</template>
-      <template v-if="business.Country"><br />{{ business.Country }}</template>
-    </template>
+    <!-- Bloc de droite : client -->
+    <div class="client" v-for="business in (invoice.Client ? [invoice.Client] : [])">
+      <div class="title">Client</div>
+      <div class="details">
+        <template v-if="typeof(business) === 'string'">
+          <div class="newlined">{{ business }}</div>
+        </template>
+        <template v-else>
+          <div>{{ business.Name }}</div>
+          <template v-if="business.Street1">{{ business.Street1 }}</template>
+          <template v-if="business.Street2">{{ business.Street2 }}</template>
+          </br>{{ business.Zip }} 
+          {{ business.State }} {{ business.City }}
+          <template v-if="business.Country"><br />{{ business.Country }}</template>
+        </template>
+      </div>
+    </div>
   </div>
-</div>
+</template>
 
 <!-- Bloc Description des artcles -->
         <table class="items">
