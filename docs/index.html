@@ -93,7 +93,7 @@
   </div>
 </template>
 
-<!-- Bloc Description des artcles -->
+<!-- Bloc Description des articles -->
         <table class="items">
           <template v-if="!Array.isArray(invoice.Items)">
             <tr>
@@ -144,6 +144,10 @@
         <template v-if="invoice.Note">
           <p class="note">{{ invoice.Note }}</p>
         </template>
+
+        <div class="rib">
+  <p>{{ invoice.RIB }}</p>
+</div>
 
         <template v-for="help in (invoice.Help ? [invoice.Help] : [])">
           <div class="help">

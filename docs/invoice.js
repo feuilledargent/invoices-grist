@@ -152,6 +152,19 @@ function updateInvoice(row) {
         throw new Error('Could not understand References column. ' + err);
       }
     }
+    
+if (row.Client && row.Client.Banque) {
+  const rib = row.Client.Banque;
+  row.RIB = `Coordonnées bancaires pour le règlement :
+${rib.Nom_Banque}
+${rib.Rue}
+${rib.Code_Postal} ${rib.Ville}
+IBAN : ${rib.IBAN}
+BIC : ${rib.Code_BIC}`;
+} else {
+  row.RIB = "Coordonnées bancaires non renseignées.";
+}
+
 
     // Add some guidance about columns.
     const want = new Set(Object.keys(addDemo({})));
@@ -193,10 +206,6 @@ function updateInvoice(row) {
     console.error(e);
   }
 }
-
-    
-
-
     if (row.Invoicer && row.Invoicer.Website && !row.Invoicer.Url) {
       row.Invoicer.Url = tweakUrl(row.Invoicer.Website);
     }
