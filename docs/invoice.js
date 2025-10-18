@@ -197,47 +197,40 @@ function updateInvoice(row) {
       row.Invoicer.Url = tweakUrl(row.Invoicer.Website);
     }
 
-// --- Construire un texte RIB complet pour l'affichage ---
+    // --- Ajouter les informations bancaires du client ---
 if (row.Client && row.Client['Nom banque']) {
   const banqueRef = row.Client['Nom banque'];
 
   try {
-    let bank = null;
-
-    // Si la référence contient déjà les données
+    // Si la référence "Nom banque" contient déjà les données (lookup Grist)
     if (typeof banqueRef === 'object') {
-      bank = banqueRef;
-    }
-
-    // Si c'est un ID, récupérer la ligne correspondante dans la table Banque
-    if (!bank && typeof banqueRef === 'number') {
+      row.Client.Banque = {
+        Nom: banqueRef['Nom banque'] || '',
+        Rue: banqueRef['Rue'] || '',
+        CP: banqueRef['CP'] || '',
+        Ville: banqueRef['Ville'] || '',
+        IBAN: banqueRef['IBAN'] || '',
+        BIC: banqueRef['Code BIC'] || '',
+      };
+    } else {
+      // Si c'est seulement un identifiant, on peut aller chercher les données via l’API Grist
       grist.docApi.fetchTable('banque').then(table => {
         const banque = table.records.find(b => b.id === banqueRef);
         if (banque) {
-          const ribText = `
-${banque['Nom banque'] || ''}
-${banque['Rue'] || ''} ${banque['CP'] || ''} ${banque['Ville'] || ''}
-IBAN : ${banque['IBAN'] || ''}
-BIC : ${banque['Code BIC'] || ''}
-          `.trim();
-          Vue.set(data.invoice, 'RIB', ribText);
+          row.Client.Banque = {
+            Nom: banque['Nom banque'] || '',
+            Rue: banque['Rue'] || '',
+            CP: banque['CP'] || '',
+            Ville: banque['Ville'] || '',
+            IBAN: banque['IBAN'] || '',
+            BIC: banque['Code BIC'] || '',
+          };
         }
       }).catch(console.error);
-    } else if (bank) {
-      // Si on a déjà les données
-      const ribText = `
-${bank['Nom banque'] || ''}
-${bank['Rue'] || ''} ${bank['CP'] || ''} ${bank['Ville'] || ''}
-IBAN : ${bank['IBAN'] || ''}
-BIC : ${bank['Code BIC'] || ''}
-      `.trim();
-      Vue.set(data.invoice, 'RIB', ribText);
     }
   } catch (e) {
-    console.error('Erreur RIB :', e);
+    console.error('Erreur lors du chargement des infos bancaires :', e);
   }
-}
-
 }
 
 
