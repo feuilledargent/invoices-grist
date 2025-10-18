@@ -156,11 +156,11 @@ if (row.References && row.References.Client && row.References.Client.Banque) {
 
   const rib = row.Client.Banque;
   row.RIB = `Coordonnées bancaires pour le règlement :
-${rib.Nom_Banque}
-${rib.Rue}
-${rib.Code_Postal} ${rib.Ville}
-IBAN : ${rib.IBAN}
-BIC : ${rib.Code_BIC}`;
+${rib["Nom banque"] || rib.Nom_Banque || ""}
+${rib.Rue || ""}
+${rib["Code postal"] || rib.Code_Postal || ""} ${rib.Ville || ""}
+IBAN : ${rib.IBAN || ""}
+BIC : ${rib["Code BIC"] || rib.Code_BIC || ""}`;
 } else {
   row.RIB = "Coordonnées bancaires non renseignées.";
 }
