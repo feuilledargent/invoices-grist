@@ -95,7 +95,6 @@ Vue.filter('fallback', function(value, str) {
   return value;
 });
 
-
 Vue.filter('asDate', function(value) {
   if (typeof(value) === 'number') {
     value = new Date(value * 1000);
@@ -103,7 +102,6 @@ Vue.filter('asDate', function(value) {
   const date = moment.utc(value);
   return date.isValid() ? date.format('DD/MM/YYYY') : value;
 });
-
 
 function tweakUrl(url) {
   if (!url) { return url; }
@@ -179,7 +177,7 @@ function updateInvoice(row) {
       }
     }
     addDemo(row);
-    if (row.Items && Array.isArray(row.Items)) {
+     if (row.Items && Array.isArray(row.Items)) {
   try {
     row.Items.forEach(item => {
       item.Tax = item.Price * item.Quantity * (item.TaxRate || 0) / 100;
@@ -193,9 +191,7 @@ function updateInvoice(row) {
     console.error(e);
   }
 }
-    if (row.Invoicer && row.Invoicer.Website && !row.Invoicer.Url) {
-      row.Invoicer.Url = tweakUrl(row.Invoicer.Website);
-    }
+
 
     // Fiddle around with updating Vue (I'm not an expert).
     for (const key of want) {
