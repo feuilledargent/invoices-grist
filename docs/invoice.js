@@ -193,6 +193,11 @@ function updateInvoice(row) {
     console.error(e);
   }
 }
+
+    
+rib = $Client.Banque
+f"Coordonnées bancaires :\n{rib.Nom_Banque}\n{rib.Rue}\n{rib.Code_Postal} {rib.Ville}\nIBAN : {rib.IBAN}\nBIC : {rib.Code_BIC}" if rib else "Coordonnées bancaires non renseignées"
+
     if (row.Invoicer && row.Invoicer.Website && !row.Invoicer.Url) {
       row.Invoicer.Url = tweakUrl(row.Invoicer.Website);
     }
