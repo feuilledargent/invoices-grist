@@ -138,6 +138,7 @@ function prepareList(lst, order) {
   return lst;
 }
 
+
 function updateInvoice(row) {
   try {
     data.status = '';
@@ -145,33 +146,72 @@ function updateInvoice(row) {
       throw new Error("(No data - not on row - please add or select a row)");
     }
     console.log("GOT...", JSON.stringify(row));
+
     if (row.References) {
       try {
         Object.assign(row, row.References);
-        
-// Enrichir les données bancaires du client si disponibles
-if (row.References && row.References.Client && row.References.Client.Banque) {
-  row.Client = Object.assign({}, row.Client, row.References.Client);
-  row.Client.Banque = row.References.Client.Banque;
-
-  const rib = row.Client.Banque;
-  row.RIB = `Coordonnées bancaires pour le règlement :
-${rib["Nom banque"] || rib.Nom_Banque || ""}
-${rib.Rue || ""}
-${rib["Code postal"] || rib.Code_Postal || ""} ${rib.Ville || ""}
-IBAN : ${rib.IBAN || ""}
-BIC : ${rib["Code BIC"] || rib.Code_BIC || ""}`;
-} else {
-  row.RIB = "Coordonnées bancaires non renseignées.";
-}
-
       } catch (err) {
         throw new Error('Could not understand References column. ' + err);
       }
 
-      
+      // Enrichir les données bancaires du client si disponibles
+      if (row.References.Client && row.References.Client.Banque) {
+        row.Client = Object.assign({}, row.Client, row.References.Client);
+        row.Client.Banque = row.References.Client.Banque;
+
+        const rib = row.Client.Banque;
+        row.RIB = `Coordonnées bancaires pour le règlement :
+${rib["Nom banque"] || ""}
+${rib["Rue"] || ""}
+${rib["CP"] || ""} ${rib["Ville"] || ""}
+IBAN : ${rib["IBAN"] || ""}
+BIC : ${rib["Code BIC"] || ""}`;
+      } else {
+        row.RIB = "Coordonnées bancaires non renseignées.";
+      }
     }
-    
+
+    // Ajout d'une clause légale dans les notes
+    const clauseLegale = "En cas de retard de paiement, une pénalité de 3 fois le taux d'intérêt légal sera appliquée, à laquelle s'ajoutera une indemnité forfaitaire pour frais de recouvrement de 40€.";
+    row.Note = row.Note ? row.Note + "\n\n" + clauseLegale : clauseLegale;
+
+    addDemo(row);
+
+    if (row.Items && Array.isArray(row.Items)) {
+      try {
+        row.Items.forEach(item => {
+          item.Tax = item.Price * item.Quantity * (item.TaxRate || 0) / 100;
+          item.Total = item.Price * item.Quantity + item.Tax;
+        });
+
+        row.Subtotal = row.Items.reduce((sum, item) => sum + item.Price * item.Quantity, 0);
+        row.Taxes = row.Items.reduce((sum, item) => sum + (item.Tax || 0), 0);
+        row.Total = row.Subtotal + row.Taxes - (row.Deduction || 0);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    if (row.Invoicer && row.Invoicer.Website && !row.Invoicer.Url) {
+      row.Invoicer.Url = tweakUrl(row.Invoicer.Website);
+    }
+
+    const want = new Set(Object.keys(addDemo({})));
+    for (const key of want) {
+      Vue.delete(data.invoice, key);
+    }
+    for (const key of ['Help', 'SuggestReferencesColumn', 'References']) {
+      Vue.delete(data.invoice, key);
+    }
+
+    data.invoice = Object.assign({}, data.invoice, row);
+    window.invoice = row;
+
+  } catch (err) {
+    handleError(err);
+  }
+}
+
 
     // Add some guidance about columns.
     const want = new Set(Object.keys(addDemo({})));
