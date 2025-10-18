@@ -145,10 +145,7 @@
           <p class="note">{{ invoice.Note }}</p>
         </template>
 
-        <div class="rib">
-  <p>{{ invoice.RIB }}</p>
-</div>
-
+        
         <template v-for="help in (invoice.Help ? [invoice.Help] : [])">
           <div class="help">
             <div class="help-close">
